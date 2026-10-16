@@ -232,7 +232,7 @@ test("watch/eject settings, discovery, resources and prompts", async () => {
   assert.deepEqual([w.autoEject, w.autoDispatch, w.autoPause], [true, true, true]);
   assert.equal((await call("configure_watch", { vision_sampling: true })).isError, false); // vision hook is installed even if the client cannot sample
 
-  const d = await call("discover_printers", { timeout_sec: 1 });
+  const d = await call("discover_printers", { timeout_sec: 1, scan: "never" }); // never probe the real network from a test
   assert.equal(d.isError, false);
   assert.ok(d.json?.printers ? Array.isArray(d.json.printers) : /no printers answered/.test(d.text));
 
@@ -264,4 +264,16 @@ test("estimate_cost: average cost of one part when the plate holds several objec
   assert.match(est.note, /approximate/);
   const h = (await call("get_history")).json.prints.find((p) => p.parts);
   assert.ok(h === undefined || h.cost_per_part === Math.round((h.cost / h.parts) * 100) / 100);
+});
+
+test("discover_printers: subnet scan validates the range and reports what it scanned", async () => {
+  const pub = await call("discover_printers", { timeout_sec: 1, scan: "always", subnet: "8.8.8.0/24" });
+  assert.equal(pub.isError, true);
+  assert.match(pub.text, /özel ağ aralıkları/); // public ranges are refused
+  assert.equal((await call("discover_printers", { timeout_sec: 1, scan: "always", subnet: "192.168.0.0/16" })).isError, true); // too big
+
+  const r = await call("discover_printers", { timeout_sec: 1, scan: "always", subnet: "192.168.254.252/30" });
+  assert.equal(r.isError, false, r.text);
+  assert.deepEqual(r.json.scanned, { ranges: ["192.168.254.252/30"], candidates: 0 });
+  assert.match(r.json.next, /nothing found/);
 });

@@ -46,7 +46,10 @@ Or skip the env and call `add_printer` (saved to `~/.bambu-sentinel/config.json`
 ## Notifications and discovery
 - The server pushes MCP log messages (print finished/failed, HMS, alerts, auto-pause, retries) and `resources/updated` for
   `bambu://events` / `bambu://fleet` subscribers. Whether you see them depends on the client.
-- `discover_printers` finds printers via SSDP (UDP 1990/2021); the LAN access code still has to be read from the printer.
+- `discover_printers` first listens for SSDP announcements (UDP 1990/2021). If it hears nothing (or with `scan='always'`) it scans the
+  local subnet(s), or `subnet='192.168.1.0/24'`: it opens a TLS connection to port 8883 on each address and reads the certificate
+  (a Bambu printer's carries its serial number; `looks_like_bambu` says whether it matched). Only private ranges, at most 1024
+  addresses. Neither method is verified on a real printer. The LAN access code still has to be read from the printer's screen.
 
 ## Plate ejection (`eject_plate`)
 Sweeps finished parts off with the toolhead: bed slides in Y while the toolhead sits low. Flow: wait for bed/nozzle to cool,
