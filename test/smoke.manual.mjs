@@ -1,0 +1,12 @@
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+const t = new StdioClientTransport({ command: "node", args: ["dist/index.js"], cwd: "C:/Users/selcu/OneDrive/Masaüstü/Projects/bambulab/sentinel", env: { ...process.env, BAMBU_SENTINEL_HOME: process.env.TEMP + "/sentinel-smoke" } });
+const c = new Client({ name: "smoke", version: "0" });
+await c.connect(t);
+const tools = await c.listTools();
+console.log(tools.tools.length, "tools:", tools.tools.map(x => x.name).join(", "));
+console.log((await c.callTool({ name: "fleet_overview", arguments: {} })).content[0].text);
+console.log((await c.callTool({ name: "send_gcode", arguments: { gcode: "M502" } })).content[0].text);
+console.log((await c.callTool({ name: "printer_status", arguments: {} })).content[0].text);
+console.log((await c.listPrompts()).prompts.map(p => p.name), (await c.listResources()).resources.map(r => r.uri));
+await c.close();

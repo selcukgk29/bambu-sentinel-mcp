@@ -1,0 +1,35 @@
+{
+  "name": "bambu-sentinel-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Bambu Lab printers: fleet control, job queue, print monitoring and AI supervision",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "bambu-sentinel-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "sim": "node dist/sim/cli.js",
+    "test": "npm run build && node --test --test-concurrency=2 --test-timeout=60000 test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "basic-ftp": "^6.2.3",
+    "fflate": "^0.8.3",
+    "mqtt": "^5.16.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "aedes": "^1.2.0",
+    "ftp-srv": "^4.6.3",
+    "selfsigned": "^5.5.0",
+    "typescript": "^7.0.2"
+  }
+}
